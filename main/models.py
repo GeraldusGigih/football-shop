@@ -17,15 +17,15 @@ class Product(models.Model):
     is_featured = models.BooleanField(default=False)
     brand = models.CharField(max_length=100)
     size = models.CharField(max_length=50)
-    view_count = models.PositiveIntegerField(default=0)
+    product_views = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.title
     
     @property
     def is_popular(self):
-        return self.view_count > 30
+        return self.product_views > 30
     
     def increment_views(self):
-        self.view_count += 1
+        self.product_views += 1
         self.save()
