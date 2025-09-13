@@ -42,3 +42,47 @@ migrate → jalankan instruksi ke databse.
 Menurut saya, Django dipilih sebagai permulaan karena framework ini sudah lengkap dan punya banyak fitur bawaan sehingga memudahkan pemula. Django juga terstruktur dengan konsep MTV, jadi kita belajar membangun aplikasi dengan cara yang rapi. Selain itu, dokumentasinya jelas dan komunitasnya besar, jadi gampang mencari bantuan saat belajar.
 ------------------------------------------------------------------------------------------------
 Untuk feedback nya sih sudah cukup bagus untuk pembuatan tutorial nya, jadi tidak perlu mencari tahu lagi fungsi masing masing step karena di dokumentasikan dengan baik dan lengkap.
+
+
+------------------------------------------------------------------------------
+1. Pentingnya Data Delivery
+Data delivery merujuk pada proses pengiriman data dari satu sistem (seperti server) ke sistem lain (seperti aplikasi client). Kita memerlukannya karena ini adalah inti dari setiap platform modern yang dinamis. Tanpa data delivery yang efisien, sebuah platform tidak dapat berfungsi. Misalnya, ketika kamu membuka Instagram, gambar dan feed yang kamu lihat dikirimkan dari server ke aplikasi di ponselmu. Ini memungkinkan data untuk selalu up-to-date dan diakses secara real-time oleh pengguna, tidak peduli lokasi dan perangkat yang mereka gunakan.
+
+2. Perbandingan XML dan JSON
+Menurut saya, JSON (JavaScript Object Notation) jauh lebih baik dan lebih populer daripada XML (Extensible Markup Language). Alasan utamanya adalah kesederhanaan dan kemudahan penggunaannya.
+
+JSON memiliki sintaks yang ringkas dan mudah dibaca oleh manusia. Strukturnya mirip dengan objek JavaScript, sehingga sangat mudah untuk diurai (parse) dan digunakan dalam bahasa pemrograman modern, terutama JavaScript.
+
+XML menggunakan tag, yang membuat ukurannya lebih besar dan sintaksnya lebih rumit. Meskipun sangat kuat dan self-describing, XML memerlukan parser yang lebih kompleks dan cenderung lebih verbose.
+
+Popularitas JSON meningkat seiring dengan berkembangnya aplikasi web yang intensif dengan JavaScript dan mobile app. JSON menjadi standar de-facto untuk API karena efisiensi dan kemudahannya.
+
+3. Fungsi is_valid() pada Form Django
+Method is_valid() pada Django Forms berfungsi untuk memeriksa validitas data yang disubmit oleh pengguna. Ketika method ini dipanggil, Django akan melakukan beberapa validasi secara otomatis, seperti:
+
+Memeriksa apakah field yang disubmit sesuai dengan tipe data yang ditentukan (e.g., integer, email, tanggal).
+
+Memastikan field yang wajib diisi (required=True) tidak kosong.
+
+Memeriksa batasan panjang karakter, format, atau aturan kustom lainnya yang didefinisikan dalam form.
+
+Kita membutuhkan method ini untuk mencegah data yang tidak valid atau berbahaya masuk ke database. Tanpa is_valid(), aplikasi akan rentan terhadap kesalahan data dan bahkan serangan siber seperti SQL Injection. Jika validasi gagal, method ini akan mengembalikan False dan form akan menyimpan pesan error yang bisa ditampilkan kepada pengguna.
+
+4. Peran csrf_token di Django
+csrf_token (Cross-Site Request Forgery Token) adalah token unik yang harus disertakan dalam setiap formulir POST di Django. Tujuannya adalah untuk melindungi aplikasi dari serangan CSRF.
+
+Jika kita tidak menambahkan csrf_token, seorang penyerang dapat memanfaatkan celah ini. Mereka bisa membuat halaman web berbahaya yang berisi form tersembunyi. Ketika korban (yang sedang login di website kita) membuka halaman tersebut, form tersembunyi itu akan secara otomatis terkirim ke website kita. Website kita akan menganggapnya sebagai permintaan yang sah dan menjalankan aksi berbahaya, seperti mengubah kata sandi atau mentransfer uang, tanpa sepengetahuan korban.
+
+Dengan csrf_token, Django akan memeriksa apakah token yang dikirimkan bersama form cocok dengan yang ada di sesi pengguna. Jika tidak cocok, permintaan akan ditolak. Ini memastikan bahwa permintaan tersebut benar-benar berasal dari formulir di situs kita dan bukan dari situs lain yang berbahaya.
+
+Checklist 1&2:
+pada views.py menerapkan fungsi untuk mengembalikan permintaan di url untuk /json,/xml,/json/:id,/xml/:id
+
+Checklist 3,4,5:
+Tambahkan button di main.html untuk href ke 2 file html lain nya dimana ada :
+1. create_product.html untuk menampilkan form menambahkan produk baru di toko
+2. product_details.html untuk menampilkan data data produk yang dipilih sesuai dengan apa yang disimpan database
+
+POSTMAN TEST:
+https://drive.google.com/drive/folders/19CKgop3e_Do4X1lZoIb5OQz6VMOe4kJ3?usp=sharing
+
