@@ -83,6 +83,8 @@ Tambahkan button di main.html untuk href ke 2 file html lain nya dimana ada :
 1. create_product.html untuk menampilkan form menambahkan produk baru di toko
 2. product_details.html untuk menampilkan data data produk yang dipilih sesuai dengan apa yang disimpan database
 
+Feedback Asdos: Sudah sangat membantu untuk kendala pengerjaan dan juga penjelasan materi
+
 POSTMAN TEST:
 https://drive.google.com/drive/folders/19CKgop3e_Do4X1lZoIb5OQz6VMOe4kJ3?usp=sharing
 
