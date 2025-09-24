@@ -20,7 +20,9 @@ def show_main(request):
     if filter_type == "all":
         product_list = Product.objects.all()
     else:
-        product_list = Product.objects.filter(user=request.user)
+        # Sementara comment dulu sampai migrasi selesai di web service
+        # product_list = Product.objects.filter(user=request.user)
+        product_list = Product.objects.all()
 
 
     context = {

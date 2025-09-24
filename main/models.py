@@ -10,7 +10,7 @@ class Product(models.Model):
         ('equipment', 'Equipment'),
     ]
 
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=255)
     price = models.IntegerField()
     description = models.TextField()
