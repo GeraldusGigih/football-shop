@@ -49,7 +49,7 @@ def create_product(request):
         'form': form
     }
 
-    return render(request, "create_news.html", context)
+    return render(request, "create_product.html", context)
 
 def show_product(request, id):
     product = get_object_or_404(Product, pk=id)

@@ -87,4 +87,180 @@ Feedback Asdos: Sudah sangat membantu untuk kendala pengerjaan dan juga penjelas
 
 POSTMAN TEST:
 https://drive.google.com/drive/folders/19CKgop3e_Do4X1lZoIb5OQz6VMOe4kJ3?usp=sharing
+---------------------------------------------------------------
+# Jawaban Pertanyaan Django Authentication
 
+## 1. Apa itu Django AuthenticationForm? Jelaskan juga kelebihan dan kekurangannya.
+
+**Django AuthenticationForm** adalah form bawaan Django yang digunakan untuk melakukan autentikasi pengguna (login). Form ini menerima username dan password, lalu memvalidasi kredensial tersebut terhadap database pengguna.
+
+### Kelebihan:
+- **Mudah digunakan**: Tinggal import dan pakai, tidak perlu membuat validasi manual
+- **Keamanan terintegrasi**: Sudah dilengkapi proteksi seperti rate limiting dan password hashing
+- **Validasi otomatis**: Melakukan pengecekan username/password secara otomatis
+- **Fleksibel**: Bisa di-customize sesuai kebutuhan
+- **Terintegrasi dengan User model**: Langsung kompatibel dengan Django User model
+
+### Kekurangan:
+- **Tampilan default sederhana**: Perlu styling CSS tambahan untuk tampilan yang menarik
+- **Terbatas pada username/password**: Tidak mendukung login dengan email secara default
+- **Kurang fleksibel untuk multi-authentication**: Sulit jika ingin login dengan berbagai metode (social login, dll)
+
+## 2. Apa perbedaan antara autentikasi dan otorisasi? Bagaiamana Django mengimplementasikan kedua konsep tersebut?
+
+### Perbedaan:
+- **Autentikasi**: Proses memverifikasi identitas pengguna ("Siapa kamu?")
+- **Otorisasi**: Proses menentukan hak akses pengguna ("Apa yang boleh kamu lakukan?")
+
+### Implementasi Django:
+
+#### Autentikasi:
+- `django.contrib.auth.authenticate()` - memverifikasi kredensial
+- `django.contrib.auth.login()` - membuat session pengguna
+- `@login_required` decorator - memastikan user sudah login
+- `AuthenticationForm` - form untuk login
+- Session dan cookies untuk menjaga state login
+
+#### Otorisasi:
+- **Permissions**: `user.has_perm('app.permission_name')`
+- **Groups**: Mengelompokkan user dengan hak akses sama
+- **Decorators**: `@permission_required`, `@user_passes_test`
+- **Template tags**: `{% if user.is_staff %}` untuk conditional rendering
+
+## 3. Apa saja kelebihan dan kekurangan session dan cookies dalam konteks menyimpan state di aplikasi web?
+
+### Session
+
+#### Kelebihan:
+- **Keamanan tinggi**: Data disimpan di server, tidak bisa dimanipulasi client
+- **Kapasitas besar**: Bisa menyimpan data kompleks tanpa batas ukuran
+- **Data sensitif aman**: Password, role, dll tidak terekspos ke client
+
+#### Kekurangan:
+- **Beban server**: Membutuhkan memori/storage server untuk menyimpan data
+- **Scalability issue**: Sulit di-scale pada multiple server
+- **Dependency**: Bergantung pada session storage (database, Redis, dll)
+
+### Cookies
+
+#### Kelebihan:
+- **Ringan untuk server**: Data disimpan di client, tidak membebani server
+- **Persistent**: Bisa bertahan meski browser ditutup (jika diset)
+- **Mudah diakses**: Bisa diakses via JavaScript di frontend
+
+#### Kekurangan:
+- **Keamanan rendah**: Bisa dimanipulasi dan dibaca oleh client
+- **Ukuran terbatas**: Maksimal 4KB per cookie
+- **Privacy issue**: Bisa digunakan untuk tracking pengguna
+
+## 4. Apakah penggunaan cookies aman secara default dalam pengembangan web, atau apakah ada risiko potensial yang harus diwaspadai? Bagaimana Django menangani hal tersebut?
+
+### Risiko Cookies:
+- **XSS (Cross-Site Scripting)**: Cookies bisa dicuri via JavaScript malicious
+- **CSRF (Cross-Site Request Forgery)**: Cookies otomatis dikirim pada setiap request
+- **Man-in-the-Middle**: Cookies bisa disadap jika tidak dienkripsi
+- **Session hijacking**: Session ID bisa dicuri dan digunakan orang lain
+
+### Cara Django Menangani:
+
+1. **HttpOnly Cookies**: `SESSION_COOKIE_HTTPONLY = True` - mencegah akses JavaScript
+2. **Secure Cookies**: `SESSION_COOKIE_SECURE = True` - hanya dikirim via HTTPS
+3. **SameSite**: `SESSION_COOKIE_SAMESITE = 'Strict'` - mencegah CSRF
+4. **CSRF Protection**: `csrf_exempt` dan `{% csrf_token %}` di forms
+5. **Secret Key**: Cookies di-sign dengan SECRET_KEY untuk mencegah manipulasi
+6. **Session Expiry**: `SESSION_COOKIE_AGE` untuk membatasi waktu aktif session
+
+## 5. Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step
+
+### Step 1: Setup Authentication System
+```python
+# 1. Membuat fungsi register di views.py
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('main:show_main')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
+```
+
+### Step 2: Implementasi Login
+```python
+# 2. Membuat fungsi login_user
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
+
+def login_user(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('main:show_main')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
+```
+
+### Step 3: Implementasi Logout
+```python
+# 3. Membuat fungsi logout
+from django.contrib.auth import logout
+
+def logout_user(request):
+    logout(request)
+    return redirect('main:login')
+```
+
+### Step 4: Menghubungkan Model dengan User
+```python
+# 4. Menambahkan ForeignKey ke User di models.py
+from django.contrib.auth.models import User
+
+class Product(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # ... field lainnya
+```
+
+### Step 5: Membatasi Akses dengan Decorator
+```python
+# 5. Menggunakan @login_required
+from django.contrib.auth.decorators import login_required
+
+@login_required(login_url='/login/')
+def show_main(request):
+    products = Product.objects.filter(user=request.user)
+    # ... logic lainnya
+```
+
+### Step 6: Setup URLs
+```python
+# 6. Menambahkan URL patterns
+urlpatterns = [
+    path('register/', register, name='register'),
+    path('login/', login_user, name='login'),
+    path('logout/', logout_user, name='logout'),
+]
+```
+
+### Step 7: Membuat Templates
+- **register.html**: Form registrasi dengan UserCreationForm
+- **login.html**: Form login dengan AuthenticationForm
+- Navigation links untuk login/logout di template utama
+
+### Step 8: Migrasi Database
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+### Step 9: Testing dan Security
+- Test semua fungsi authentication
+- Pastikan cookies aman dengan setting yang tepat di settings.py
+- Implementasi CSRF protection di semua forms
