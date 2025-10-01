@@ -264,3 +264,80 @@ python manage.py migrate
 - Test semua fungsi authentication
 - Pastikan cookies aman dengan setting yang tepat di settings.py
 - Implementasi CSRF protection di semua forms
+----------------------------------------------------------------------------------------------------------------
+## 1. Urutan Prioritas CSS Selector (Specificity)
+Ketika sebuah elemen HTML terkena banyak aturan CSS, browser akan memilih berdasarkan **specificity**:
+
+1. **Inline Style** → `<div style="...">`
+2. **ID Selector** → `#id`
+3. **Class, Attribute, Pseudo-class Selector** → `.class`, `[type=text]`, `:hover`
+4. **Tag/Element Selector** → `div`, `h1`
+5. **Universal Selector** → `*`
+6. **!important** → mengalahkan semua aturan di atas (gunakan hati-hati).
+
+**Contoh:**
+```css
+div { color: black; }      /* element */
+.box { color: blue; }      /* class */
+#main { color: green; }    /* id */
+
+## 2. Responsive Design
+
+Responsive Design = desain web yang menyesuaikan dengan berbagai ukuran layar (desktop, tablet, smartphone).
+
+Pentingnya Responsive Design
+
+Menjamin user experience (UX) lebih baik di semua perangkat.
+
+Mendukung SEO (Google mobile-friendly).
+
+Mengurangi kebutuhan membuat versi web terpisah (misalnya m.website.com).
+
+Contoh
+
+✅ Sudah responsive: Instagram Web, Shopee, Tokopedia
+❌ Belum responsive: SIAK-NG.
+
+## 3. Margin, Border, dan Padding
+
+Dalam CSS Box Model:
+
+Margin → ruang di luar border (jarak antar elemen).
+
+Border → garis tepi elemen.
+
+Padding → ruang antara isi elemen dan border.
+
+[ Margin ]
+   [ Border ]
+      [ Padding ]
+         [ Content ]
+
+## 4. Flexbox vs Grid Layout
+Flexbox
+
+Untuk satu dimensi (baris atau kolom).
+
+Cocok untuk navbar, tombol sejajar, card list.
+
+Properti utama:
+
+display: flex;
+
+justify-content → atur horizontal (start, center, end, space-between, dll.)
+
+align-items → atur vertikal
+
+flex-wrap → biar turun baris otomatis
+
+Contoh:
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+## 5. cara implementasi checklist
+1. Membuat fungsi edit_product & delete_product pada views.py
+2. saya melakukan kostumisasi pada semua halaman html termasuk login register dimana saya mengambil tema gelap-biru agar sesuai dengan footballshop saya, menggunakan tailwind agar lebih flexibel. Serta menambahkan sedikit script untuk efek transaparan navbar.`
