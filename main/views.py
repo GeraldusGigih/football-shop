@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.core import serializers
@@ -9,7 +10,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 import datetime
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 
 @login_required(login_url='/login')
@@ -67,9 +68,23 @@ def show_xml(request):
     return HttpResponse(data, content_type="application/xml")
 
 def show_json(request):
-    products = Product.objects.all()
-    data = serializers.serialize("json", products)
-    return HttpResponse(data, content_type="application/json")
+    product_list = Product.objects.all()
+    data = [
+        {
+            'id': uuid(product.id),
+            'name': product.name,
+            'price': product.price,
+            'description': product.description,
+            'thumbnail': product.thumbnail,
+            'is_featured': product.is_featured,
+            'brand': product.brand,
+            'available_sizes': product.available_sizes,
+            'product_views': product.product_views,
+        }
+        for product in product_list
+    ]
+
+    return JsonResponse(data, safe=False)
 
 def show_xml_by_id(request, id):
     try: 
