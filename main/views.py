@@ -1,4 +1,6 @@
 import uuid
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.core import serializers
@@ -12,6 +14,34 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
+from django.utils.html import strip_tags
+
+@csrf_exempt
+@require_POST
+def add_product_entry_ajax(request):
+    name = strip_tags(request.POST.get("title")) # strip HTML tags!
+    price = request.POST.get("price")
+    description = strip_tags(request.POST.get("content")) # strip HTML tags!
+    brand = request.POST.get("brand")
+    thumbnail = request.POST.get("thumbnail")
+    available_sizes = request.POST.get("available_sizes")
+    is_featured = request.POST.get("is_featured") == 'on'  # checkbox handling
+    user = request.user
+
+    new_product = Product(
+        name=name,
+        price=price,
+        description=description,
+        brand=brand,
+        thumbnail=thumbnail,
+        available_sizes=available_sizes,
+        is_featured=is_featured,
+        user=user
+    )
+
+    new_product.save()
+
+    return HttpResponse(b"CREATED", status=201)
 
 @login_required(login_url='/login')
 # Create your views here.
@@ -71,7 +101,7 @@ def show_json(request):
     product_list = Product.objects.all()
     data = [
         {
-            'id': uuid(product.id),
+            'id': str(product.id),
             'name': product.name,
             'price': product.price,
             'description': product.description,
@@ -80,6 +110,7 @@ def show_json(request):
             'brand': product.brand,
             'available_sizes': product.available_sizes,
             'product_views': product.product_views,
+            'user_id': product.user_id,
         }
         for product in product_list
     ]
@@ -96,11 +127,22 @@ def show_xml_by_id(request, id):
 
 def show_json_by_id(request, id):
     try:
-        product_item = Product.objects.get(id=id)
-        json_data = serializers.serialize("json", [product_item])
-        return HttpResponse(json_data, content_type="application/json")
+        product = Product.objects.select_related('user').get(pk=id)
+        data = {
+            'id': str(product.id),
+            'name': product.name,
+            'price': product.price,
+            'description': product.description,
+            'thumbnail': product.thumbnail,
+            'is_featured': product.is_featured,
+            'brand': product.brand,
+            'available_sizes': product.available_sizes,
+            'product_views': product.product_views,
+            'user_id': product.user_id,
+        }
+        return JsonResponse(data)
     except Product.DoesNotExist:
-        return HttpResponse("Product not found", status=404)
+        return JsonResponse({'detail': 'Not found'}, status=404)
     
 def register(request):
     form = UserCreationForm()
@@ -153,3 +195,5 @@ def delete_product(request, id):
     product = get_object_or_404(Product, pk=id)
     product.delete()
     return HttpResponseRedirect(reverse('main:show_main'))
+
+

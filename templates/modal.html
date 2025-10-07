@@ -1,0 +1,248 @@
+<!-- Modal -->
+<div id="productModal" class="hidden fixed inset-0 z-50 w-full flex items-center justify-center bg-black bg-opacity-50">
+  <div id="productModalContent" class="bg-gray-800 rounded-lg shadow-lg w-5/6 sm:w-3/5 md:w-1/2 lg:w-2/5 xl:w-1/3 max-h-screen overflow-y-auto opacity-0 scale-95 transform transition-all duration-150 ease-out">
+    <!-- Modal header -->
+    <div class="flex items-center justify-between p-4 border-b border-gray-700">
+      <div>
+        <h3 class="text-xl font-semibold text-white">
+          Create New Product
+        </h3>
+        <p class="text-sm text-gray-400 mt-1">Add a new football product to your store</p>
+      </div>
+      <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-700 hover:text-white rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" onclick="hideModal()">
+        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+        <span class="sr-only">Close modal</span>
+      </button>
+    </div>
+    <!-- Modal body -->
+    <div class="px-6 py-4 space-y-6 form-style">
+      <form id="productForm">
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium text-gray-300">Product Name</label>
+          <input type="text" id="name" name="name" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400" placeholder="Enter product name" required>
+        </div>
+        
+        <div class="mb-4">
+          <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
+          <textarea id="description" name="description" rows="3" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400" placeholder="Enter product description" required></textarea>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="mb-4">
+            <label for="price" class="block text-sm font-medium text-gray-300">Price</label>
+            <input type="number" id="price" name="price" min="0" step="0.01" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400" placeholder="0.00" required>
+          </div>
+          
+          <div class="mb-4">
+            <label for="brand" class="block text-sm font-medium text-gray-300">Brand</label>
+            <input type="text" id="brand" name="brand" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400" placeholder="Enter brand name" required>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="thumbnail" class="block text-sm font-medium text-gray-300">Thumbnail URL</label>
+          <input type="url" id="thumbnail" name="thumbnail" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white placeholder-gray-400" placeholder="https://example.com/image.jpg">
+        </div>
+        
+        <div class="mb-4">
+          <label for="category" class="block text-sm font-medium text-gray-300">Category</label>
+          <select id="category" name="category" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white" onchange="updateSizeChoices()" required>
+            <option value="">Choose a category</option>
+            <option value="shoes">Football Shoes</option>
+            <option value="jersey">Jerseys</option>
+            <option value="equipment">Equipment</option>
+            <option value="accessories">Accessories</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-300 mb-2">Available Sizes</label>
+          <div id="sizeChoicesContainer" class="grid grid-cols-4 gap-2">
+            <!-- Size choices will be dynamically populated here -->
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="flex items-center">
+            <input id="is_featured" name="is_featured" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded">
+            <label for="is_featured" class="ml-2 text-sm font-medium text-gray-300">Featured Product</label>
+          </div>
+        </div>
+      </form>
+    </div>
+    <!-- Modal footer -->
+    <div class="flex flex-col sm:flex-row gap-4 p-6 border-t border-gray-700 rounded-b">
+      <button type="button" id="cancelButton" class="order-2 sm:order-1 px-6 py-3 border border-gray-600 text-gray-300 rounded-md font-medium hover:bg-gray-700 transition-colors text-center" onclick="hideModal()">Cancel</button>
+      <button type="submit" id="submitProduct" form="productForm" class="order-1 sm:order-2 flex-1 bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors">Add Product</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showModal() {
+    const modal = document.getElementById('productModal');
+    const modalContent = document.getElementById('productModalContent');
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modalContent.classList.remove('opacity-0', 'scale-95');
+        modalContent.classList.add('opacity-100', 'scale-100');
+    // populate size choices when modal opens
+    try { updateSizeChoices(); } catch(e) {}
+    }, 50);
+}
+
+function hideModal() {
+    const modal = document.getElementById('productModal');
+    const modalContent = document.getElementById('productModalContent');
+
+    modalContent.classList.remove('opacity-100', 'scale-100');
+    modalContent.classList.add('opacity-0', 'scale-95');
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        document.getElementById('productForm').reset();
+    }, 150);
+}
+
+async function addProduct() {
+  // Collect form and sizes
+  const form = document.getElementById('productForm');
+  if (!form) return;
+  const formData = new FormData(form);
+  // Ensure price is integer to match server model IntegerField
+  const priceInput = form.querySelector('input[name="price"]');
+  if (priceInput) {
+    const raw = priceInput.value;
+    let coerced = 0;
+    try { coerced = Math.floor(Number(raw) || 0); } catch(e) { coerced = 0; }
+    formData.set('price', String(coerced));
+  }
+
+  const sizes = [];
+  document.querySelectorAll('input[name="available_sizes"]:checked').forEach(cb => sizes.push(cb.value));
+  // send sizes as comma-separated string (matches model storage)
+  formData.set('available_sizes', sizes.join(', '));
+
+  // CSRF
+  const csrftoken = getCookie('csrftoken');
+
+  try {
+    // Ensure backend field names expected by the view
+    formData.set('title', formData.get('name'));
+    formData.set('content', formData.get('description'));
+
+    const response = await fetch("{% url 'main:add_product_entry_ajax' %}", {
+      method: 'POST',
+      headers: csrftoken ? { 'X-CSRFToken': csrftoken } : {},
+      body: formData
+    });
+
+    // If your view returns 201 CREATED with plain text, treat 201 as success
+    if (response.status === 201) {
+      document.getElementById('productForm').reset();
+      hideModal();
+      try { showToast('Success', 'Product added successfully!', 'success'); } catch(e){}
+      document.dispatchEvent(new CustomEvent('productAdded'));
+      return true;
+    }
+
+    // Otherwise try to parse JSON response for error message
+    let payload = null;
+    try { payload = await response.json(); } catch(e) { payload = await response.text().catch(()=>null); }
+
+    if (response.ok) {
+      // assume success if ok
+      document.getElementById('productForm').reset();
+      hideModal();
+      try { showToast('Success', 'Product added successfully!', 'success'); } catch(e){}
+      document.dispatchEvent(new CustomEvent('productAdded'));
+      return true;
+    } else {
+      const msg = (payload && payload.message) ? payload.message : (typeof payload === 'string' ? payload : 'Failed to add product');
+      try { showToast('Error', msg, 'error'); } catch(e) { alert(msg); }
+      return false;
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    try { showToast('Error', 'An error occurred while adding the product', 'error'); } catch(e){ alert('An error occurred while adding the product'); }
+    return false;
+  }
+}
+
+// Attach submit/click handlers
+const productForm = document.getElementById('productForm');
+if (productForm) {
+  productForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    addProduct();
+  });
+}
+
+const submitBtn = document.getElementById('submitProduct');
+if (submitBtn) {
+  submitBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    addProduct();
+  });
+}
+
+// Helper function to get CSRF token
+// Size choices configuration
+const CLOTHING_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+const SHOES_SIZES = ['39', '40', '41', '42', '43', '44', '45'];
+
+function updateSizeChoices() {
+    const category = document.getElementById('category').value;
+    const container = document.getElementById('sizeChoicesContainer');
+    
+    // Clear existing choices
+    container.innerHTML = '';
+    
+    // Determine which sizes to show
+    const sizes = category === 'shoes' ? SHOES_SIZES : CLOTHING_SIZES;
+    
+    // Create checkbox for each size
+    sizes.forEach(size => {
+        const div = document.createElement('div');
+        div.className = 'flex items-center';
+        
+        div.innerHTML = `
+            <input id="size_${size}" 
+                   name="available_sizes" 
+                   type="checkbox" 
+                   value="${size}" 
+                   class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded">
+            <label for="size_${size}" 
+                   class="ml-2 text-sm font-medium text-gray-300">${size}</label>
+        `;
+        
+        container.appendChild(div);
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize size choices when the modal is shown
+document.getElementById('productModal').addEventListener('shown.bs.modal', function () {
+    updateSizeChoices();
+});
+
+// Note: main page listens for 'productAdded' and will refresh itself via PRODUCTS_API_ENDPOINT
+// (handlers attached above)
+</script>

@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 from main.models import Product
+from django.utils.html import strip_tags
 
 class ProductForm(ModelForm):
     # Define different size choices for different categories
@@ -33,6 +34,14 @@ class ProductForm(ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'price', 'description', 'thumbnail', 'category', 'is_featured', 'brand', 'available_sizes']
+
+    def clean_title(self):
+        title = self.cleaned_data["title"]
+        return strip_tags(title)
+
+    def clean_content(self):
+        content = self.cleaned_data["content"]
+        return strip_tags(content)
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
