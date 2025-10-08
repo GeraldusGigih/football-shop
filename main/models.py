@@ -25,7 +25,7 @@ class Product(models.Model):
     price = models.IntegerField()
     description = models.TextField()
     thumbnail = models.URLField(blank=True, null=True)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='update')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='equipment')
     is_featured = models.BooleanField(default=False)
     brand = models.CharField(max_length=100)
     available_sizes = models.CharField(max_length=200, null=True, help_text="Sizes separated by commas")
@@ -33,6 +33,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def get_category_display_name(self):
+        """Return display name for category"""
+        return dict(self.CATEGORY_CHOICES).get(self.category, 'Uncategorized')
     
     def get_sizes_list(self):
         """Return list of available sizes"""

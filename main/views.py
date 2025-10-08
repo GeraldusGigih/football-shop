@@ -19,14 +19,77 @@ from django.utils.html import strip_tags
 @csrf_exempt
 @require_POST
 def add_product_entry_ajax(request):
-    name = strip_tags(request.POST.get("title")) # strip HTML tags!
+    name = strip_tags(request.POST.get("title"))
     price = request.POST.get("price")
-    description = strip_tags(request.POST.get("content")) # strip HTML tags!
+    description = strip_tags(request.POST.get("content"))
+    category = request.POST.get("category")
     brand = request.POST.get("brand")
     thumbnail = request.POST.get("thumbnail")
     available_sizes = request.POST.get("available_sizes")
-    is_featured = request.POST.get("is_featured") == 'on'  # checkbox handling
+    is_featured = request.POST.get("is_featured") == 'on'
     user = request.user
+
+    # Create new product
+    new_product = Product(
+        name=name,
+        price=price,
+        description=description,
+        category=category,
+        brand=brand,
+        thumbnail=thumbnail,
+        available_sizes=available_sizes,
+        is_featured=is_featured,
+        user=user
+    )
+    new_product.save()
+
+    return HttpResponse(b"CREATED", status=201)
+
+@csrf_exempt
+def edit_product_ajax(request, id):
+    product = get_object_or_404(Product, pk=id, user=request.user)
+    
+    if request.method == 'POST':
+        # Update product
+        product.name = strip_tags(request.POST.get("title"))
+        product.price = request.POST.get("price")
+        product.description = strip_tags(request.POST.get("content"))
+        product.category = request.POST.get("category")
+        product.brand = request.POST.get("brand")
+        product.thumbnail = request.POST.get("thumbnail")
+        product.available_sizes = request.POST.get("available_sizes")
+        product.is_featured = request.POST.get("is_featured") == 'on'
+        product.save()
+        
+        return JsonResponse({
+            "status": "success",
+            "message": "Product updated successfully"
+        })
+    
+    elif request.method == 'GET':
+        # Return product data for editing
+        return JsonResponse({
+            "id": str(product.id),
+            "name": product.name,
+            "price": product.price,
+            "description": product.description,
+            "category": product.category,
+            "brand": product.brand,
+            "thumbnail": product.thumbnail,
+            "available_sizes": product.available_sizes,
+            "is_featured": product.is_featured
+        })
+
+@csrf_exempt
+@require_POST
+def delete_product_ajax(request, id):
+    product = get_object_or_404(Product, pk=id, user=request.user)
+    product.delete()
+    
+    return JsonResponse({
+        "status": "success",
+        "message": "Product deleted successfully"
+    })
 
     new_product = Product(
         name=name,

@@ -1,5 +1,7 @@
 {% load static %}
 {% load humanize %}
+{% load humanize %}
+
 <article class="bg-gray-800 rounded-lg border border-gray-700 hover:shadow-xl hover:shadow-black/20 transition-all duration-300 overflow-hidden">
   <!-- Thumbnail -->
   <div class="aspect-[16/9] relative overflow-hidden">
@@ -51,7 +53,7 @@
 
     <!-- Price -->
     <div class="mb-4">
-      <span class="text-xl font-bold text-blue-400">Rp {{ product.price|floatformat:0 | intcomma }}</span>
+      <span class="text-xl font-bold text-blue-400">Rp {{ product.price|intcomma }}</span>
     </div>
 
     <!-- Action Buttons -->

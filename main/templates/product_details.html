@@ -1,209 +1,376 @@
 {% extends 'base.html' %}
-{% block content %}
+{% load static %}
 {% load humanize %}
-<div class="bg-gray-900 min-h-screen py-8">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-    
-    <!-- Back Button -->
-    <div class="mb-6">
-      <a href="{% url 'main:show_main' %}" class="inline-flex items-center text-gray-300 hover:text-white font-medium transition-colors">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-        Back to Product List
-      </a>
-    </div>
+{% block meta %}
+<title>Product Details - FootballHub</title>
+{% endblock meta %}
 
-    <!-- Loading State -->
-        <div id="loading-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+{% block content %}
+<div class="bg-gray-900 min-h-screen">
+  <!-- Hero Section -->
+  <div class="relative bg-gradient-to-br from-gray-800 to-gray-900 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Back Button -->
+      <div class="mb-8">
+        <a href="{% url 'main:show_main' %}" class="inline-flex items-center text-gray-300 hover:text-white font-medium transition-colors group">
+          <svg class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Products
+        </a>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="loading-state" class="bg-gray-800 rounded-lg border border-gray-700 p-12 text-center">
+        <div class="flex flex-col items-center">
+          <svg class="animate-spin h-12 w-12 text-blue-400 mb-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
+          <p class="text-gray-300 text-lg">Loading product details...</p>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div id="error-state" class="bg-gray-800 rounded-lg border border-red-700 p-12 text-center hidden">
+        <div class="flex flex-col items-center">
+          <div class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L3.732 16.5c-.77.833-.23 2.5 1.732 2.5z"></path>
             </svg>
-            <p class="text-gray-600 mt-3">Loading product detail...</p>
-        </div>
-
-    <!-- Error State -->
-        <div id="error-state" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
-            <div class="w-16 h-16 mx-auto mb-4">
-                <div class="text-red-500 text-5xl">⚠️</div>
-            </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Failed to load product</h3>
-            <p class="text-gray-500">Please try again later.</p>
-        </div>
-
-    <!-- Product Details Card -->
-    <div class="bg-gray-800 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
-      <div class="p-6 sm:p-8">
-        
-        <!-- Product Header -->
-        <div class="mb-6">
-          <h1 id="article-title" class="text-3xl font-bold text-white mb-4">{{ product.name }}</h1>
-          <div id="badges-container" class="flex flex-wrap items-center gap-4 text-sm">
-            <span class="bg-gray-700 text-gray-300 px-3 py-1 rounded-full font-medium">
-              {{ product.get_category_display }}
-            </span>
-            {% if product.is_featured %}
-              <span class="bg-blue-600 text-white px-3 py-1 rounded-full font-medium">Featured</span>
-            {% endif %}
-            {% if product.is_hot %}
-              <span class="bg-red-600 text-white px-3 py-1 rounded-full font-medium">Hot</span>
-            {% endif %}
-            <span id="article-views" class="text-gray-400">{{ product.product_views }} views</span>
           </div>
+          <h3 class="text-xl font-semibold text-white mb-2">Product Not Found</h3>
+          <p class="text-gray-400 mb-6">The product you're looking for doesn't exist or has been removed.</p>
+          <a href="{% url 'main:show_main' %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            Browse Products
+          </a>
         </div>
+      </div>
 
-        <!-- Product Info -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <!-- Image -->
-          {% if product.thumbnail %}
-          <div id="featured-image-container" class="order-2 md:order-1">
-            <img id="featured-image" src="{{ product.thumbnail }}" alt="Product thumbnail" 
-                 class="w-full h-64 sm:h-80 object-contain bg-gray-700 rounded-lg">
-          </div>
-          {% else %}
-          <div id="featured-image-container" class="order-2 md:order-1 hidden"></div>
-          {% endif %}
+      <!-- Product Content -->
+      <div id="product-content" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
           
-          <!-- Details -->
-          <div class="order-1 md:order-2 space-y-6">
-            <div class="bg-gray-700 p-4 rounded-lg">
-              <h2 class="text-2xl font-bold text-blue-400 mb-2">Rp{{ product.price|floatformat:0 | intcomma }}</h2>
-              <p class="text-gray-300">Price</p>
+          <!-- Product Image -->
+          <div class="space-y-6">
+            <div class="aspect-square rounded-xl overflow-hidden bg-gray-700">
+              <img id="product-image" src="" alt="" class="w-full h-full object-cover">
             </div>
             
-            <div class="space-y-4">
-              <div>
-                <h3 class="text-lg font-semibold text-white mb-2">Brand</h3>
-                <p class="text-gray-300">{{ product.brand }}</p>
+            <!-- Image Gallery Placeholder -->
+            <div class="grid grid-cols-4 gap-3">
+              <div class="aspect-square rounded-lg bg-gray-700 opacity-50"></div>
+              <div class="aspect-square rounded-lg bg-gray-700 opacity-30"></div>
+              <div class="aspect-square rounded-lg bg-gray-700 opacity-30"></div>
+              <div class="aspect-square rounded-lg bg-gray-700 opacity-30"></div>
+            </div>
+          </div>
+
+          <!-- Product Info -->
+          <div class="space-y-8">
+            <!-- Product Header -->
+            <div>
+              <div id="product-badges" class="flex flex-wrap gap-2 mb-4"></div>
+              <h1 id="product-title" class="text-4xl font-bold text-white mb-4"></h1>
+              <div class="flex items-center gap-4 text-sm text-gray-400">
+                <span id="product-brand" class="font-medium text-blue-400"></span>
+                <span>•</span>
+                <span id="product-views" class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <span id="views-count"></span> views
+                </span>
               </div>
-              
-              <div>
-                <h3 class="text-lg font-semibold text-white mb-2">Available Sizes</h3>
-                <div class="flex flex-wrap gap-2">
-                  {% for size in product.get_sizes_list %}
-                    <span class="bg-gray-700 text-gray-300 px-3 py-1 rounded border border-gray-600 text-sm">{{ size }}</span>
-                  {% empty %}
-                    <span class="text-gray-400">No sizes specified</span>
-                  {% endfor %}
+            </div>
+
+            <!-- Price -->
+            <div class="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray-400 text-sm mb-1">Price</p>
+                  <p id="product-price" class="text-3xl font-bold text-white"></p>
+                </div>
+                <div class="text-right">
+                  <p class="text-gray-400 text-sm mb-1">Category</p>
+                  <p id="product-category" class="text-lg font-semibold text-gray-300"></p>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Description -->
-        <div class="mb-8">
-          <h3 class="text-xl font-semibold text-white mb-4">Description</h3>
-          <div class="bg-gray-700 p-4 rounded-lg">
-            <p id="article-content-text" class="text-gray-300 leading-relaxed">{{ product.description }}</p>
-          </div>
-        </div>
-
-        <!-- Author Info -->
-        <div class="border-t border-gray-700 pt-6">
-          <div class="flex items-center">
-            <div class="bg-gray-700 p-3 rounded-full mr-4">
-              <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-              </svg>
+            <!-- Available Sizes -->
+            <div id="sizes-section" class="space-y-4">
+              <h3 class="text-lg font-semibold text-white">Available Sizes</h3>
+              <div id="product-sizes" class="flex flex-wrap gap-2"></div>
             </div>
-            <div>
-              <p class="text-gray-400 text-sm">Created by</p>
-              <p id="article-author" class="text-white font-medium">
-                {% if product.user %}{{ product.user.username }}{% else %}Anonymous{% endif %}
-              </p>
+
+            <!-- Action Buttons -->
+            <div id="action-buttons" class="space-y-4">
+              <!-- Owner Actions -->
+              <div id="owner-actions" class="hidden flex gap-4">
+                <button onclick="editProductFromDetails()" class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                  <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                  Edit Product
+                </button>
+                <button onclick="deleteProductFromDetails()" class="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition-colors font-semibold">
+                  <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                  Delete Product
+                </button>
+              </div>
+              
+              <!-- Public Actions -->
+              <div id="public-actions" class="hidden">
+                <button class="w-full bg-green-600 text-white py-4 px-6 rounded-lg hover:bg-green-700 transition-colors font-semibold text-lg">
+                  <svg class="w-6 h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l-2.5-5M7 13h10m0 0v3a1 1 0 01-1 1H8a1 1 0 01-1-1v-3m0 0V9a1 1 0 011-1h8a1 1 0 011 1v4z"></path>
+                  </svg>
+                  Add to Cart
+                </button>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Product Description -->
+  <div id="description-section" class="hidden bg-gray-900 py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-gray-800 rounded-xl border border-gray-700 p-8">
+        <h2 class="text-2xl font-bold text-white mb-6">Product Description</h2>
+        <div id="product-description" class="text-gray-300 leading-relaxed text-lg"></div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Include Modals -->
+{% include 'modal.html' %}
+
 <script>
 // Configuration
-const PRODUCT_ID = "{{ product.id }}";
-const PRODUCT_DETAIL_ENDPOINT = `{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', PRODUCT_ID);
+const PRODUCT_ID = "{{ request.resolver_match.kwargs.id }}";
+const CURRENT_USER_ID = "{{ user.id|default_if_none:'' }}";
+const PRODUCT_DETAIL_API_URL = "{% url 'main:show_json_by_id' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', PRODUCT_ID);
+
+// Product data storage
+let currentProduct = null;
 
 // DOM Elements
 const loadingState = document.getElementById('loading-state');
 const errorState = document.getElementById('error-state');
-const articleContent = document.getElementById('article-content');
-const badgesContainer = document.getElementById('badges-container');
-const articleTitle = document.getElementById('article-title');
-const articleViews = document.getElementById('article-views');
-const featuredImageContainer = document.getElementById('featured-image-container');
-const featuredImage = document.getElementById('featured-image');
-const articleContentText = document.getElementById('article-content-text');
-const articleAuthor = document.getElementById('article-author');
+const productContent = document.getElementById('product-content');
+const descriptionSection = document.getElementById('description-section');
 
-function showState(state) {
-  if (loadingState) loadingState.classList.toggle('hidden', state !== 'loading');
-  if (errorState) errorState.classList.toggle('hidden', state !== 'error');
-  if (articleContent) articleContent.classList.toggle('hidden', state !== 'ready');
-}
+// Sanitizer
+const sanitize = window.DOMPurify && DOMPurify.sanitize ? DOMPurify.sanitize : (s) => s;
 
-function getCategoryLabel(code) {
-  const map = { jersey: 'Jersey', shoes: 'Shoes', equipment: 'Equipment' };
-  return map[code] || code;
-}
-
-function renderProduct(product) {
-  if (!product) return;
-  if (articleTitle) articleTitle.textContent = product.name || '';
-  if (articleViews) articleViews.textContent = `${product.product_views || 0} views`;
-
-  // badges
-  if (badgesContainer) {
-    badgesContainer.innerHTML = '';
-    const cat = document.createElement('span');
-    cat.className = 'bg-gray-700 text-gray-300 px-3 py-1 rounded-full font-medium';
-    cat.textContent = getCategoryLabel(product.category);
-    badgesContainer.appendChild(cat);
-
-    if (product.is_featured) {
-      const f = document.createElement('span');
-      f.className = 'bg-blue-600 text-white px-3 py-1 rounded-full font-medium ml-2';
-      f.textContent = 'Featured';
-      badgesContainer.appendChild(f);
-    }
-    if ((product.product_views || 0) > 20) {
-      const h = document.createElement('span');
-      h.className = 'bg-red-600 text-white px-3 py-1 rounded-full font-medium ml-2';
-      h.textContent = 'Hot';
-      badgesContainer.appendChild(h);
-    }
-  }
-
-  // featured image
-  if (product.thumbnail) {
-    if (featuredImage) { featuredImage.src = product.thumbnail; featuredImage.alt = product.name || ''; }
-    if (featuredImageContainer) featuredImageContainer.classList.remove('hidden');
-  } else {
-    if (featuredImageContainer) featuredImageContainer.classList.add('hidden');
-  }
-
-  if (articleContentText) articleContentText.textContent = product.description || '';
-  if (articleAuthor) articleAuthor.textContent = product.user_username ? `Created by: ${product.user_username}` : `Created by: Anonymous`;
-}
-
-async function loadProductDetail() {
+// Load product details via AJAX
+async function loadProductDetails() {
   try {
-    showState('loading');
-    const res = await fetch(PRODUCT_DETAIL_ENDPOINT, { headers: { 'Accept': 'application/json' } });
-    if (!res.ok) throw new Error('Failed to fetch product detail');
-    const data = await res.json();
-    // view returns flat object (we ensured JSON uses str(uuid))
-    renderProduct(data);
-    showState('ready');
-  } catch (err) {
-    console.error('Error loading product detail:', err);
-    showState('error');
+    showLoadingState();
+    
+    const response = await fetch(PRODUCT_DETAIL_API_URL);
+    if (!response.ok) {
+      throw new Error('Product not found');
+    }
+    
+    const data = await response.json();
+    currentProduct = Array.isArray(data) ? data[0] : data;
+    
+    if (!currentProduct) {
+      throw new Error('Product not found');
+    }
+    
+    populateProductDetails(currentProduct);
+    showProductContent();
+    
+  } catch (error) {
+    console.error('Error loading product:', error);
+    showErrorState();
   }
 }
 
-// Uncomment to hydrate via AJAX
-// loadProductDetail();
+function showLoadingState() {
+  loadingState.classList.remove('hidden');
+  errorState.classList.add('hidden');
+  productContent.classList.add('hidden');
+  descriptionSection.classList.add('hidden');
+}
+
+function showErrorState() {
+  loadingState.classList.add('hidden');
+  errorState.classList.remove('hidden');
+  productContent.classList.add('hidden');
+  descriptionSection.classList.add('hidden');
+}
+
+function showProductContent() {
+  loadingState.classList.add('hidden');
+  errorState.classList.add('hidden');
+  productContent.classList.remove('hidden');
+  descriptionSection.classList.remove('hidden');
+}
+
+function populateProductDetails(product) {
+  // Update document title
+  document.title = `${sanitize(product.name)} - FootballHub`;
+  
+  // Product image
+  const productImage = document.getElementById('product-image');
+  if (product.thumbnail) {
+    productImage.src = sanitize(product.thumbnail);
+    productImage.alt = sanitize(product.name);
+  } else {
+    productImage.src = "{% static 'image/placeholder-product.jpg' %}";
+    productImage.alt = "Product image not available";
+  }
+  
+  // Product info
+  document.getElementById('product-title').textContent = sanitize(product.name);
+  document.getElementById('product-brand').textContent = sanitize(product.brand || 'Unknown Brand');
+  document.getElementById('product-price').textContent = 'Rp ' + Number(product.price || 0).toLocaleString('id-ID');
+  document.getElementById('product-category').textContent = getCategoryDisplayName(product.category);
+  document.getElementById('views-count').textContent = Number(product.product_views || 0);
+  document.getElementById('product-description').textContent = sanitize(product.description || 'No description available.');
+  
+  // Badges
+  populateBadges(product);
+  
+  // Sizes
+  populateSizes(product);
+  
+  // Action buttons
+  setupActionButtons(product);
+}
+
+function getCategoryDisplayName(categoryCode) {
+  const categoryMap = {
+    'jersey': 'Jersey',
+    'shoes': 'Shoes', 
+    'equipment': 'Equipment'
+  };
+  return categoryMap[categoryCode] || 'Uncategorized';
+}
+
+function populateBadges(product) {
+  const badgesContainer = document.getElementById('product-badges');
+  badgesContainer.innerHTML = '';
+  
+  // Category badge
+  const categoryBadge = document.createElement('span');
+  categoryBadge.className = 'bg-gray-700 text-gray-300 px-3 py-1 rounded-full text-sm font-medium';
+  categoryBadge.textContent = getCategoryDisplayName(product.category);
+  badgesContainer.appendChild(categoryBadge);
+  
+  // Featured badge
+  if (product.is_featured) {
+    const featuredBadge = document.createElement('span');
+    featuredBadge.className = 'bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium';
+    featuredBadge.textContent = 'Featured';
+    badgesContainer.appendChild(featuredBadge);
+  }
+  
+  // Hot badge (if views > 20)
+  if (Number(product.product_views || 0) > 20) {
+    const hotBadge = document.createElement('span');
+    hotBadge.className = 'bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium';
+    hotBadge.textContent = 'Hot';
+    badgesContainer.appendChild(hotBadge);
+  }
+}
+
+function populateSizes(product) {
+  const sizesContainer = document.getElementById('product-sizes');
+  sizesContainer.innerHTML = '';
+  
+  if (product.available_sizes) {
+    const sizes = product.available_sizes.split(',').map(s => s.trim()).filter(s => s);
+    sizes.forEach(size => {
+      const sizeElement = document.createElement('span');
+      sizeElement.className = 'bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium border border-gray-600';
+      sizeElement.textContent = sanitize(size);
+      sizesContainer.appendChild(sizeElement);
+    });
+  } else {
+    sizesContainer.innerHTML = '<span class="text-gray-500">No sizes available</span>';
+  }
+}
+
+function setupActionButtons(product) {
+  const ownerActions = document.getElementById('owner-actions');
+  const publicActions = document.getElementById('public-actions');
+  
+  // Check if current user owns this product
+  if (CURRENT_USER_ID && Number(CURRENT_USER_ID) === Number(product.user_id)) {
+    ownerActions.classList.remove('hidden');
+    publicActions.classList.add('hidden');
+  } else {
+    ownerActions.classList.add('hidden');
+    publicActions.classList.remove('hidden');
+  }
+}
+
+// Action functions
+function editProductFromDetails() {
+  if (!currentProduct) return;
+  
+  // Use the existing edit function from main.html
+  if (typeof editProduct === 'function') {
+    editProduct(currentProduct.id);
+  } else {
+    // Fallback to traditional edit page
+    window.location.href = `{% url 'main:edit_product' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', currentProduct.id);
+  }
+}
+
+function deleteProductFromDetails() {
+  if (!currentProduct) return;
+  
+  // Use the existing delete function from main.html
+  if (typeof showDeleteModal === 'function') {
+    showDeleteModal(currentProduct.id, currentProduct.name);
+  } else {
+    // Fallback confirmation
+    if (confirm(`Are you sure you want to delete ${currentProduct.name}?`)) {
+      window.location.href = `{% url 'main:delete_product' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', currentProduct.id);
+    }
+  }
+}
+
+// Helper function for CSRF
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Listen for product updates
+document.addEventListener('productAdded', function() {
+  // Refresh product details
+  loadProductDetails();
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadProductDetails();
+});
 </script>
+
 {% endblock content %}
+
