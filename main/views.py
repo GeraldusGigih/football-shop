@@ -15,6 +15,9 @@ import datetime
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.utils.html import strip_tags
+import requests
+from django.utils.html import strip_tags
+import json
 
 @csrf_exempt
 @require_POST
@@ -260,3 +263,61 @@ def delete_product(request, id):
     return HttpResponseRedirect(reverse('main:show_main'))
 
 
+def proxy_image(request):
+    image_url = request.GET.get('url')
+    if not image_url:
+        return HttpResponse('No URL provided', status=400)
+    
+    try:
+        # Fetch image from external source
+        response = requests.get(image_url, timeout=10)
+        response.raise_for_status()
+        
+        # Return the image with proper content type
+        return HttpResponse(
+            response.content,
+            content_type=response.headers.get('Content-Type', 'image/jpeg')
+        )
+    except requests.RequestException as e:
+        return HttpResponse(f'Error fetching image: {str(e)}', status=500)
+    
+@csrf_exempt
+def create_product_flutter(request):
+    if request.method != 'POST':
+        return JsonResponse({"status": "error", "detail": "POST required"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except (ValueError, TypeError):
+        return JsonResponse({"status": "error", "detail": "Invalid JSON"}, status=400)
+
+    name = strip_tags(data.get("name", ""))
+    content = strip_tags(data.get("content", ""))
+    category = data.get("category", "equipment")
+    thumbnail = data.get("thumbnail", "")
+    is_featured = bool(data.get("is_featured", False))
+    brand = data.get("brand", "")
+    available_sizes = data.get("available_sizes", "")
+
+    price_raw = data.get("price", 0)
+    try:
+        price = int(price_raw)
+    except (ValueError, TypeError):
+        price = 0
+
+    user = request.user if request.user.is_authenticated else None
+
+    new_product = Product(
+        name=name,
+        price=price,
+        description=content,
+        category=category,
+        brand=brand,
+        thumbnail=thumbnail,
+        available_sizes=available_sizes,
+        is_featured=is_featured,
+        user=user
+    )
+    new_product.save()
+
+    return JsonResponse({"status": "success", "id": str(new_product.id)}, status=201)
