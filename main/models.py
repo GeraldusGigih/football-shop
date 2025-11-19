@@ -55,3 +55,19 @@ class Product(models.Model):
     def increment_views(self):
         self.product_views += 1
         self.save()
+
+    def to_dict(self):
+        """Return a JSON-serializable dict representation of Product."""
+        return {
+            'id': str(self.id),
+            'name': self.name,
+            'price': self.price,
+            'description': self.description,
+            'thumbnail': self.thumbnail,
+            'is_featured': self.is_featured,
+            'brand': self.brand,
+            'available_sizes': self.available_sizes,
+            'sizes_list': self.get_sizes_list(),
+            'product_views': self.product_views,
+            'user_id': self.user_id,
+        }

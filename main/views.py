@@ -321,3 +321,16 @@ def create_product_flutter(request):
     new_product.save()
 
     return JsonResponse({"status": "success", "id": str(new_product.id)}, status=201)
+
+def get_all_products_json(request):
+    products = Product.objects.all()
+    data = [product.to_dict() for product in products]
+    return JsonResponse(data, safe=False)
+
+def get_my_products_json(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'detail': 'Authentication credentials were not provided'}, status=401)
+
+    my_products = Product.objects.filter(user=request.user)
+    data = [product.to_dict() for product in my_products]
+    return JsonResponse(data, safe=False)
